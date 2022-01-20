@@ -5,6 +5,7 @@ const mysql = require("mysql2");
 // Import asciiart
 const logo = require("asciiart-logo");
 const config = require("./package.json");
+require('dotenv').config();
 // Import console.table
 const table = require("console.table");
 // Connect to database
@@ -13,14 +14,41 @@ console.log(logo(config).render());
 
 const db = mysql.createConnection({
   host: "localhost",
+  port: 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
 });
+db.connect(function(err){
+  if (err) 
+  console.log(err)
+  else console.log('connection established')
+})
 
+  // inquirer
+  //   .prompt([
+  //     {
+  //       type: "list",
+  //       name: "task",
+  //       message: "What would you like to do?",
+  //       choices: [
+  //         { name: "View All Employees", value: "View All Employees" },
+  //         "Add Employee",
+  //         "Update Employee Role",
+  //         "View All Roles",
+  //         "Add Role",
+  //         "View All Departments",
+  //         "Add Departments",
+  //         "Quit",
+  //       ],
+  //     },
+  //   ])
+  //   .then((result) => {
+  //     console.log(result.task);
+  //   });
 
 function mainPrompt() {
- return inquirer
+  inquirer
     .prompt([{
       type: "list",
       name: "task",
@@ -40,35 +68,35 @@ function mainPrompt() {
       console.log(task)
       switch (task) {
         case "View All Employees":
-          // viewEmployeeList();
+          viewEmployeeList();
           break;
 
         case "Add Employee":
-          // addEmployee();
+          addEmployee();
           break;
 
         case "Update Employee Role":
-          // updateEmployeeRole();
+          updateEmployeeRole();
           break;
 
         case "View All Roles":
-          // viewAllRoles();
+          viewAllRoles();
           break;
 
         case "Add Role":
-          // addRole();
+          addRole();
           break;
 
         case "View All Departments":
-          // viewAllDepartments();
+          viewAllDepartments();
           break;
 
         case "Add Departments":
-          // addDepartment();
+          addDepartment();
           break;
 
         case "Quit":
-          // db.end();
+          db.end();
           break;
       }
     });
@@ -91,7 +119,3 @@ const viewEmployeeList = () => {
 };
 
 mainPrompt();
-
-// db.sync().then(() => {
-//   app.listen(PORT, () => console.log('Now listening'));
-// });
