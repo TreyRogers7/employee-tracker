@@ -1,32 +1,97 @@
-const express = require('express');
+// Import inquirer
+const inquirer = require("inquirer");
 // Import and require mysql2
-const mysql = require('mysql2');
-const logo = require('asciiart-logo');
-const config = require('./package.json');
-const consTbl = require('console.table');
+const mysql = require("mysql2");
+// Import asciiart
+const logo = require("asciiart-logo");
+const config = require("./package.json");
+// Import console.table
+const table = require("console.table");
+// Connect to database
+// const sequelize = require("./config/connection");
 console.log(logo(config).render());
 
-const PORT = process.env.PORT || 3001;
-const app = express();
+const db = mysql.createConnection({
+  host: "localhost",
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+});
 
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 
-// Connect to database
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    // TODO: Add MySQL password here
-    password: 'Lovepop4ever',
-    database: 'employee_db'
-  },
-  console.log(`Connected to the employee_db database.`)
-);
+function mainPrompt() {
+ return inquirer
+    .prompt([{
+      type: "list",
+      name: "task",
+      message: "What would you like to do?",
+      choices: [
+        { name: "View All Employees", value: "View All Employees" },
+        "Add Employee",
+        "Update Employee Role",
+        "View All Roles",
+        "Add Role",
+        "View All Departments",
+        "Add Departments",
+        "Quit",
+      ],
+    }])
+    .then((task) => {
+      console.log(task)
+      switch (task) {
+        case "View All Employees":
+          // viewEmployeeList();
+          break;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+        case "Add Employee":
+          // addEmployee();
+          break;
+
+        case "Update Employee Role":
+          // updateEmployeeRole();
+          break;
+
+        case "View All Roles":
+          // viewAllRoles();
+          break;
+
+        case "Add Role":
+          // addRole();
+          break;
+
+        case "View All Departments":
+          // viewAllDepartments();
+          break;
+
+        case "Add Departments":
+          // addDepartment();
+          break;
+
+        case "Quit":
+          // db.end();
+          break;
+      }
+    });
+};
+
+const viewEmployeeList = () => {
+  const query = `select employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary, concat(manager.first_name,' ',manager.last_name) as manager from employee LEFT JOIN role
+  ON employee.role_id = role.id
+  LEFT JOIN department
+  ON department.id = role.department_id
+  LEFT JOIN employee manager
+  ON manager.id = employee.manager_id`;
+  db.query(query, (err, res) => {
+    if (err) throw err;
+    table(res);
+
+    mainPrompt();
   });
-  
+
+};
+
+mainPrompt();
+
+// db.sync().then(() => {
+//   app.listen(PORT, () => console.log('Now listening'));
+// });

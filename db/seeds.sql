@@ -18,11 +18,11 @@ VALUES
 
 INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
 VALUES
-(1, Trey, Rogers, Head_Engineer),
-(2, Shy, Wheeler, Software_Engineer, Trey_Rogers),
-(3, Richard, Rogers, Head_of_Sales),
-(4, Ian, Darland, Sales_Person, Richard_Rogers),
-(5, Kelly, Golden, Account_Manager),
-(6, Jay, Golden, Accountant, Kelly-Golden),
-(7, Khaleesi, Drogo, Head_of_Legal_Team),
-(8, Khal, Drogo, Lawyer, Khaleesi_Drogo)
+(1, Trey, Rogers, Head_Engineer, null),
+(2, Shy, Wheeler, Software_Engineer, 1),
+(3, Richard, Rogers, Head_of_Sales, null),
+(4, Ian, Darland, Sales_Person, 3),
+(5, Kelly, Golden, Account_Manager, null),
+(6, Jay, Golden, Accountant, 5),
+(7, Khaleesi, Drogo, Head_of_Legal_Team, null),
+(8, Khal, Drogo, Lawyer, 7)
