@@ -5,7 +5,7 @@ const mysql = require("mysql2");
 // Import asciiart
 const logo = require("asciiart-logo");
 const config = require("./package.json");
-require('dotenv').config();
+require("dotenv").config();
 // Import console.table
 const table = require("console.table");
 console.log(logo(config).render());
@@ -15,33 +15,34 @@ const db = mysql.createConnection({
   port: 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  database: process.env.DB_NAME,
 });
-db.connect(function(err){
-  if (err) 
-  console.log(err)
-  else console.log('connection established')
-})
+db.connect(function (err) {
+  if (err) console.log(err);
+  else console.log("connection established");
+});
 
 function mainPrompt() {
   inquirer
-    .prompt([{
-      type: "list",
-      name: "task",
-      message: "What would you like to do?",
-      choices: [
-        "View All Employees",
-        "Add Employee",
-        "Update Employee Role",
-        "View All Roles",
-        "Add Role",
-        "View All Departments",
-        "Add Departments",
-        "Quit",
-      ],
-    }])
+    .prompt([
+      {
+        type: "list",
+        name: "task",
+        message: "What would you like to do?",
+        choices: [
+          "View All Employees",
+          "Add Employee",
+          "Update Employee Role",
+          "View All Roles",
+          "Add Role",
+          "View All Departments",
+          "Add Departments",
+          "Quit",
+        ],
+      },
+    ])
     .then(({ task }) => {
-      console.log(task)
+      console.log(task);
       switch (task) {
         case "View All Employees":
           viewEmployeeList();
@@ -76,7 +77,7 @@ function mainPrompt() {
           break;
       }
     });
-};
+}
 
 const viewEmployeeList = () => {
   let query = `select employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary, concat(manager.first_name,' ',manager.last_name) as manager from employee LEFT JOIN role
@@ -91,87 +92,110 @@ const viewEmployeeList = () => {
 
     mainPrompt();
   });
-  
 };
 
-const addEmployee = () => {
+const addEmployee = async () => {
   let query = `select role.id, role.title, role.salary from role`;
   db.query(query, (err, res) => {
     if (err) throw err;
-    
-    const roleChoices = res.map(({ id, title, salary}) => ({
+
+    const roleChoices = res.map(({ id, title, salary }) => ({
       value: id,
-      title: `${title}`,
-      salary: `${salary}`,
+      name: title,
     }));
     console.table(res);
     rolePrompts(roleChoices);
   });
 };
 
-  const rolePrompts = (roleChoices) => {
-    inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "roleId",
-        message: "What is the Employees role?",
-        choices: roleChoices,  
-      },
-      {
-        type: 'input',
-        name: 'first_name',
-        message: 'What is the New Hires First Name?'
-      },
-      {
-        type: 'input',
-        name: 'last_name',
-        message: 'What is the New Hires Last Name?'
-      },
-      {
-        type: 'input',
-        name: 'manager_id',
-        message: 'Please Enter New Hires Manager ID'
-      }
-    ])
-    .then((results) => {
-      console.log(results)
+const rolePrompts = async (roleChoices) => {
+  const dbEmployees = await db.promise().query(`select * from employee`);
+  const mgrList = dbEmployees[0].map((employee) => ({
+    value: employee.id,
+    name: `${employee.first_name} ${employee.last_name}`,
+  }));
+  const results = await inquirer.prompt([
+    {
+      type: "list",
+      name: "role_id",
+      message: "What is the Employees role?",
+      choices: roleChoices,
+    },
+    {
+      type: "input",
+      name: "first_name",
+      message: "What is the New Hires First Name?",
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "What is the New Hires Last Name?",
+    },
+    {
+      type: "list",
+      name: "manager_id",
+      message: "Please Enter New Hires Manager.",
+      choices: mgrList,
+    },
+  ]);
 
-      let query = `Insert into employee db.`;
-      db.query(query, {
-        role_id: results.role_id,
-        first_name: results.first_name,
-        last_name: results.last_name,
-        manager_id: results.manager_id
-      }, (err, res) => {
-        if (err) throw err
+  console.log(results);
 
-        console.table(res);
-        mainPrompt();
-      });
-    });
-  };
+  let query = `Insert into employee set ?`;
+  const res = await db.promise().query(query, {
+    role_id: results.role_id,
+    first_name: results.first_name,
+    last_name: results.last_name,
+    manager_id: results.manager_id,
+  });
+  console.table(res[0]);
+  mainPrompt();
+};
 
+const updateEmployeeRole = async () => {
+  const dbEmployees = await db.promise().query(`select * from employee`);
+  const employeeList = dbEmployees[0].map((employee) => ({
+    value: employee.id,
+    name: `${employee.first_name} ${employee.last_name}`,
+  }));
+  const dbRoles = await db.promise().query(`select * from role`);
+  const roleList = dbRoles[0].map((role) => ({
+    value: role.id,
+    name: role.title
+  }));
+  const results = await inquirer
+  .prompt ([
+    {
+      type: 'list',
+      name: 'employee',
+      message: 'Please select employee youd like to update',
+      choices: employeeList
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: 'Please select the role youd like to update',
+      choices: roleList
+    }
+  ])
 
-const updateEmployeeRole = () => {
+let query = `update employee set role_id = ? where id = ?`;
+const res = await db.promise().query(query, [results.role, results.employee])
+console.log('done')
 
   mainPrompt();
 };
 
 const viewAllRoles = () => {
-
   mainPrompt();
 };
 
 const addRole = () => {
-
   mainPrompt();
 };
 
 const addDepartment = () => {
-
   mainPrompt();
 };
-
 
 mainPrompt();
