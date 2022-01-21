@@ -8,7 +8,7 @@ CREATE TABLE department (
     name VARCHAR(100)
 );
 
-CREATE TABLE roles (
+CREATE TABLE role (
     id INT PRIMARY KEY,
     title VARCHAR(100),
     salary DECIMAL,

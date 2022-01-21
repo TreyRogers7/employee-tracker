@@ -8,8 +8,6 @@ const config = require("./package.json");
 require('dotenv').config();
 // Import console.table
 const table = require("console.table");
-// Connect to database
-// const sequelize = require("./config/connection");
 console.log(logo(config).render());
 
 const db = mysql.createConnection({
@@ -25,28 +23,6 @@ db.connect(function(err){
   else console.log('connection established')
 })
 
-  // inquirer
-  //   .prompt([
-  //     {
-  //       type: "list",
-  //       name: "task",
-  //       message: "What would you like to do?",
-  //       choices: [
-  //         { name: "View All Employees", value: "View All Employees" },
-  //         "Add Employee",
-  //         "Update Employee Role",
-  //         "View All Roles",
-  //         "Add Role",
-  //         "View All Departments",
-  //         "Add Departments",
-  //         "Quit",
-  //       ],
-  //     },
-  //   ])
-  //   .then((result) => {
-  //     console.log(result.task);
-  //   });
-
 function mainPrompt() {
   inquirer
     .prompt([{
@@ -54,7 +30,7 @@ function mainPrompt() {
       name: "task",
       message: "What would you like to do?",
       choices: [
-        { name: "View All Employees", value: "View All Employees" },
+        "View All Employees",
         "Add Employee",
         "Update Employee Role",
         "View All Roles",
@@ -64,7 +40,7 @@ function mainPrompt() {
         "Quit",
       ],
     }])
-    .then((task) => {
+    .then(({ task }) => {
       console.log(task)
       switch (task) {
         case "View All Employees":
@@ -103,7 +79,7 @@ function mainPrompt() {
 };
 
 const viewEmployeeList = () => {
-  const query = `select employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary, concat(manager.first_name,' ',manager.last_name) as manager from employee LEFT JOIN role
+  let query = `select employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary, concat(manager.first_name,' ',manager.last_name) as manager from employee LEFT JOIN role
   ON employee.role_id = role.id
   LEFT JOIN department
   ON department.id = role.department_id
@@ -111,11 +87,91 @@ const viewEmployeeList = () => {
   ON manager.id = employee.manager_id`;
   db.query(query, (err, res) => {
     if (err) throw err;
-    table(res);
+    console.table(res);
 
     mainPrompt();
   });
-
+  
 };
+
+const addEmployee = () => {
+  let query = `select role.id, role.title, role.salary from role`;
+  db.query(query, (err, res) => {
+    if (err) throw err;
+    
+    const roleChoices = res.map(({ id, title, salary}) => ({
+      value: id,
+      title: `${title}`,
+      salary: `${salary}`,
+    }));
+    console.table(res);
+    rolePrompts(roleChoices);
+  });
+};
+
+  const rolePrompts = (roleChoices) => {
+    inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "roleId",
+        message: "What is the Employees role?",
+        choices: roleChoices,  
+      },
+      {
+        type: 'input',
+        name: 'first_name',
+        message: 'What is the New Hires First Name?'
+      },
+      {
+        type: 'input',
+        name: 'last_name',
+        message: 'What is the New Hires Last Name?'
+      },
+      {
+        type: 'input',
+        name: 'manager_id',
+        message: 'Please Enter New Hires Manager ID'
+      }
+    ])
+    .then((results) => {
+      console.log(results)
+
+      let query = `Insert into employee db.`;
+      db.query(query, {
+        role_id: results.role_id,
+        first_name: results.first_name,
+        last_name: results.last_name,
+        manager_id: results.manager_id
+      }, (err, res) => {
+        if (err) throw err
+
+        console.table(res);
+        mainPrompt();
+      });
+    });
+  };
+
+
+const updateEmployeeRole = () => {
+
+  mainPrompt();
+};
+
+const viewAllRoles = () => {
+
+  mainPrompt();
+};
+
+const addRole = () => {
+
+  mainPrompt();
+};
+
+const addDepartment = () => {
+
+  mainPrompt();
+};
+
 
 mainPrompt();

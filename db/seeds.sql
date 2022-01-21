@@ -1,28 +1,28 @@
 INSERT INTO department (id, name)
 VALUES 
-(1, Engineering),
-(2, Sales),
-(3, Finance),
-(4, Legal)
+('Engineering'),
+('Sales'),
+('Finance'),
+('Legal');
 
-INSERT INTO roles (id, title, department_id, salary)
+INSERT INTO role (id, title, department_id, salary)
 VALUES
-(1, Head_Engineer, Engineering, 250000),
-(2, Software_Engineer, Engineering, 175000),
-(3, Head_of_Sales, Sales, 150000),
-(4, Sales_Person, Sales, 'comission'),
-(5, Account_Manager, Finance, 125000),
-(6, Accountant, Finance, 75000),
-(7, Head_of_Legal_Team, Legal, 200000),
-(8, Lawyer, Legal, 100000)
+('Head_Engineer', 1, 250000),
+('Software_Engineer', 2, 175000),
+('Head_of_Sales', 1, 150000),
+('Sales_Person', 2, 'comission'),
+('Account_Manager', 1, 125000),
+('Accountant', 2, 75000),
+('Head_of_Legal_Team', 1, 200000),
+('Lawyer', 2, 100000);
 
 INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
 VALUES
-(1, Trey, Rogers, Head_Engineer, null),
-(2, Shy, Wheeler, Software_Engineer, 1),
-(3, Richard, Rogers, Head_of_Sales, null),
-(4, Ian, Darland, Sales_Person, 3),
-(5, Kelly, Golden, Account_Manager, null),
-(6, Jay, Golden, Accountant, 5),
-(7, Khaleesi, Drogo, Head_of_Legal_Team, null),
-(8, Khal, Drogo, Lawyer, 7)
+('Trey', 'Rogers', 1, null),
+('Shy', 'Wheeler', 2, 1),
+('Richard', 'Rogers', 3, null),
+('Ian', 'Darland', 4, 3),
+('Kelly', 'Golden', 5, null),
+('Jay', 'Golden', 6, 5),
+('Khaleesi', 'Drogo', 7, null),
+('Khal', 'Drogo', 8, 7);
