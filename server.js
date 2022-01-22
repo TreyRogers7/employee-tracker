@@ -90,6 +90,8 @@ const viewEmployeeList = () => {
     if (err) throw err;
     console.table(res);
 
+    console.log('employees displayed')
+
     mainPrompt();
   });
 };
@@ -193,6 +195,8 @@ const viewAllRoles = async () => {
   db.query(query, (err, res) => {
     if (err) throw err;
     console.table(res);
+
+    console.log('roles displayed')
     mainPrompt();
   });
 };
@@ -236,6 +240,8 @@ const viewAllDepartments = async () => {
   db.query(query, (err, res) => {
     if (err) throw err;
     console.table(res);
+
+    console.log('Departments Displayed')
     mainPrompt();
     
   });
