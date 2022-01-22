@@ -149,6 +149,8 @@ const rolePrompts = async (roleChoices) => {
     manager_id: results.manager_id,
   });
   console.table(res[0]);
+
+  console.log('A new employee has been hired')
   mainPrompt();
 };
 
@@ -181,20 +183,79 @@ const updateEmployeeRole = async () => {
 
 let query = `update employee set role_id = ? where id = ?`;
 const res = await db.promise().query(query, [results.role, results.employee])
-console.log('done')
 
+console.log('Your role has been updated')
   mainPrompt();
 };
 
-const viewAllRoles = () => {
+const viewAllRoles = async () => {
+  const query = `select * from role`;
+  db.query(query, (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    mainPrompt();
+  });
+};
+
+const addRole = async () => {
+  const dbDepartment = await db.promise().query(`select * from department`);
+  const departmentList = dbDepartment[0].map(({ id, name }) => ({
+    value: id,
+    name: `${id} ${name}`
+  }));  
+  
+  const addRolePrompts = await inquirer
+  .prompt ([
+    {
+      type: 'input',
+      name: 'title',
+      message: 'Please enter the new role',
+    },
+    {
+      type: 'input',
+      name: 'salary',
+      message: 'Please input salary',
+    },
+    {
+      type: 'list',
+      name: 'department_id',
+      message: 'Please select the department belonging to this role',
+      choices: departmentList
+    }
+  ])
+  
+  let query = `insert into role set ?`;
+  const res = await db.promise().query(query, addRolePrompts)
+  
+  console.log('A new role has been added')
   mainPrompt();
 };
 
-const addRole = () => {
-  mainPrompt();
+const viewAllDepartments = async () => {
+  const query = `select * from department`;
+  db.query(query, (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    mainPrompt();
+    
+  });
 };
+const addDepartment = async () => {
+  const dbNewDepartment = await db.promise().query(`select * from department`);
 
-const addDepartment = () => {
+  const newDepartmentPrompts = await inquirer
+  .prompt ([
+    {
+    type: 'input',
+    name: 'name',
+    message: 'Please Enter New Department Name.'
+    }
+  ])
+
+  let query = `insert into department set ?`;
+  const res = await db.promise().query(query, newDepartmentPrompts)
+  
+  console.log('Department successfully added')
   mainPrompt();
 };
 
